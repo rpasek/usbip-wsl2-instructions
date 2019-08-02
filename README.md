@@ -1,44 +1,56 @@
-##Adding USB support to WSL 2:
+# Adding USB support to WSL 2
+
 This method adds support to WSL 2 by using USBIP on Windows to forward USB packets to USBIP on Linux.
 The Linux kernel on WSL 2 does not support USB devices by default. The instructions here will explain how to add USB functionality to the WSL Linux kernel and how to use USBIP to hook devices into Linux.
 
-#USBIP-Win
-If you require the latest version of usbip-win you'll have to build usbip-win yourself by:
+## USBIP-Win
+
+If you require the latest version of usbip-win you'll have to build usbip-win yourself.
+
 Install git for Windows if you haven't already:
-https://gitforwindows.org/
+> https://gitforwindows.org/
+
 
 Open git bash in the start menu and clone usbip-win:
-`$ git clone https://github.com/cezuni/usbip-win.git`
+```
+$ git clone https://github.com/cezuni/usbip-win.git
+```
 
 Follow the instructions to build usbip-win in README.md. You'll have to install Visual Studio (community and other SKU's work), the Windows SDK and the Windows Driver Kit. Install each one in the order that is given in the instructions and don't install more then 1 thing at a time or the Windows SDK or Windows Driver Kit will install in a broken state that took me hours to figure out.
 
 If you don't need the latest version you can get prebuilt versions located here:
-https://github.com/cezuni/usbip-win/releases
+> https://github.com/cezuni/usbip-win/releases
 
-#Adding USB support to WSL Linux
+## Adding USB support to WSL Linux
+
 Install WSL 2:
-https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
+> https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
 
 Please take note that you must be running Windows 10 build 18917 or higher as explained in the description. 
 
 You'll need Windows update to function to update to this version. 
 
 If Windows update doesn't work because of various policy restrictions at your work, you can fix this by going into regedit.exe and locating to:
-HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate
+> HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate
+
 and deleting all entries. This will probably auto-refresh in the future with the original settings when you log back onto your domain. I think changing these settings are not good anyway so I won't miss the changes.
 
 Open Ubuntu in WSL by navigating to the start menu and opening Ubuntu
 
 Update sources:
-`~$ sudo apt update`
+```
+~$ sudo apt update
+```
 
 Install prerequisites to build Linux kernel:
-`~$ sudo install build-essential flex bison libssl-dev libelf-dev libncurses-dev autoconf libudev-dev libtool`
+```
+~$ sudo install build-essential flex bison libssl-dev libelf-dev libncurses-dev autoconf libudev-dev libtool
+````
 
 Find out the name of your Linux kernel:
 ```
 ~$ uname -r
-~4.19.43-microsoft-standard
+4.19.43-microsoft-standard
 ```
 
 Clone the WSL 2 kernel. Typically kernel source is put in /usr/src/[kernel name]:
@@ -48,7 +60,9 @@ Clone the WSL 2 kernel. Typically kernel source is put in /usr/src/[kernel name]
 ```
 
 Checkout your version of the kernel:
-`/usr/src/4.19.43-microsoft-standard$ sudo git checkout v4.19.43`
+```
+/usr/src/4.19.43-microsoft-standard$ sudo git checkout v4.19.43
+```
 
 Copy in your current kernel configuration:
 ```
@@ -58,7 +72,9 @@ Copy in your current kernel configuration:
 ```
 
 Run menuconfig to select what kernel modules you'd like to add:
-`/usr/src/4.19.43-microsoft-standard$ sudo make menuconfig`
+```
+/usr/src/4.19.43-microsoft-standard$ sudo make menuconfig
+```
 
 Navigate in menuconfig to select the USB kernel modules you'd like. These suited my needs but add more or less as you see fit:
 ```
@@ -82,7 +98,9 @@ Device Drivers->Network device support->USB Network Adapters->Multi-purpose USB 
 ```
 
 Build the kernel and modules with as many cores as you have available (-j [number of cores]). This may take a few minutes depending how fast your machine is:
-`/usr/src/4.19.43-microsoft-standard$ sudo make -j 12 && sudo make modules_install -j 12 && sudo make install -j 12`
+```
+/usr/src/4.19.43-microsoft-standard$ sudo make -j 12 && sudo make modules_install -j 12 && sudo make install -j 12
+```
 
 After the build completes you'll get a list of what kernel modules have been installed. Mine looks like:
 ```
@@ -107,14 +125,16 @@ After the build completes you'll get a list of what kernel modules have been ins
 
 Build USBIP tools:
 ```
-/usr/src/4.19.43-microsoft-standard$ cd /tools/usb/usbip
+/usr/src/4.19.43-microsoft-standard$ cd tools/usb/usbip
 /usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo ./autogen.sh
 /usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo ./configure
-sudo make install -j 12
+/usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo make install -j 12
 ```
 
 Copy USBIP tools libraries to location that USBIP tools can get to them:
-`sudo cp libsrc/.libs/libusbip.so.0 /lib/libusbip.so.0`
+```
+/usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo cp libsrc/.libs/libusbip.so.0 /lib/libusbip.so.0
+````
 
 Make a script in your home directory to modprobe in all the drivers. Be sure to modprobe in usbcore and usb-common first. I called mine startusb.sh. Mine looks like:
 ```
@@ -138,39 +158,61 @@ The last line spits out the IP address of the Windows host. Helpful when you are
 If you see some crap about /bin/bash^M: bad interpreter: No such file or directory it's because you have cr+lf line endings. You need to convert your shellscript to just lf.
 
 Mark it as executable:
-`~$ sudo chmod +x startusb.sh`
+```
+~$ sudo chmod +x startusb.sh
+```
 
 Restart WSL. In a CMD window in Windows type:
-`C:\Users\rpasek>wsl --shutdown`
+```
+C:\Users\rpasek>wsl --shutdown
+```
 
 Open WSL again by going to start menu and opening Ubuntu and run your script:
-`~: ./startusb.sh`
+```
+~$ ./startusb.sh
+```
 
 Check in dmesg that all your USB drivers got loaded:
-`~: sudo dmesg`
+```
+~$ sudo dmesg
+````
 
 If so, cool, you've added USB support to WSL. 
 
-#Using USBIP-Win and USBIP on Linux
+## Using USBIP-Win and USBIP on Linux
+
 This will generate a list of usb devices attached to Windows:
-`C:\Users\rpasek\usbip-win-driver>usbip list -l`
+```
+C:\Users\rpasek\usbip-win-driver>usbip list -l
+```
 
 The busid of the device I want to bind to is 1-220. Bind to it with: 
-`C:\Users\rpasek\usbip-win-driver>usbip bind --busid=1-220`
+```
+C:\Users\rpasek\usbip-win-driver>usbip bind --busid=1-220
+```
 
 Now start the usbip daemon. I start in debug mode to see more messages:
-`C:\Users\rpasek\usbip-win-driver>usbipd --debug`
+```
+C:\Users\rpasek\usbip-win-driver>usbipd --debug
+```
 
 Now on Linux get a list of availabile USB devices:
-`~$ sudo usbip list --remote=172.30.64.1`
+```
+~$ sudo usbip list --remote=172.30.64.1
+```
 
 The busid of the device I want to attach to is 1-220. Attach to it with:
-`~$ sudo usbip attach --remote=172.30.64.1 --busid=1-220`
+```
+~$ sudo usbip attach --remote=172.30.64.1 --busid=1-220
+```
 
 Your USB device should be usable now in Linux. Check dmesg to make sure everything worked correctly:
-`~$ sudo dmesg`
+```
+~$ sudo dmesg
+```
 
-#Couple of tips
+## Couple of tips
+
 * You need to bind to the base device of a composite device. Binding to children of a composite device does not work.
 * You can't bind hubs. Sorry, it would be really cool but it doesn't work.
 * If you'd like to unbind so you can access the device in Windows again: 
