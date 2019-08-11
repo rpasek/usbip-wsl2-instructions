@@ -44,7 +44,7 @@ Update sources:
 
 Install prerequisites to build Linux kernel:
 ```
-~$ sudo install build-essential flex bison libssl-dev libelf-dev libncurses-dev autoconf libudev-dev libtool
+~$ sudo apt install build-essential flex bison libssl-dev libelf-dev libncurses-dev autoconf libudev-dev libtool
 ````
 
 Find out the name of your Linux kernel:
@@ -91,7 +91,7 @@ Device Drivers->USB support->USB Serial Converter support[M]
 Device Drivers->USB support->USB Serial Converter support->USB FTDI Single Port Serial Driver[M]
 Device Drivers->USB support->USB Physical Layer drivers->NOP USB Transceiver Driver[M]
 Device Drivers->Network device support->USB Network Adapters[M]
-Device Drivers->Network device support->[Deselect everything you dont care about]
+Device Drivers->Network device support->USB Network Adapters->[Deselect everything you don't care about]
 Device Drivers->Network device support->USB Network Adapters->Multi-purpose USB Networking Framework[M]
 Device Drivers->Network device support->USB Network Adapters->CDC Ethernet support (smart devices such as cable modems)[M]
 Device Drivers->Network device support->USB Network Adapters->Multi-purpose USB Networking Framework->Host for RNDIS and ActiveSync devices[M]
@@ -223,3 +223,10 @@ Your USB device should be usable now in Linux. Check dmesg to make sure everythi
   5. Click Let me pick fron a list of available drivers on my computer
   6. Select the original driver that Windows uses to access the device
 * Sometimes USBIP on Windows can't attach to a device. Try moving the device to a different hub and binding again. You can move the device back after you bind as binding sticks through attach/detach cycles.
+* I had some trouble on one of my machines getting composite devices to show up in usbip list on the Windows side. To get around this:
+  1. Download Zadig (https://zadig.akeo.ie) and run it
+  2. Go to options and select "List All Devices" and deselect "Ignore Hubs or Composite Parents"
+  3. Select your USB composite device in the list
+  4. Install the libusbK driver
+  5. Now your device should show up in the usbip list
+  6. I don't really know why this works. It might be that the Windows default driver captures the composite device in a way that USBIP-Win can't see it and installing the libusbK frees it. USBIP-Win will essentially overwrite the libusbK driver with the USBIP-Win driver so you might be able to select any driver (not just libusbK). Either way it's probably a bug that needs to be worked out in USBIP-Win
