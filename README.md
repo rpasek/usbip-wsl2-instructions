@@ -220,7 +220,7 @@ Your USB device should be usable now in Linux. Check dmesg to make sure everythi
   2. Find the USB/IP STUB device under System devices,
   3. Right click and select Update driver
   4. Click Browse my computer for driver software
-  5. Click Let me pick fron a list of available drivers on my computer
+  5. Click Let me pick from a list of available drivers on my computer
   6. Select the original driver that Windows uses to access the device
 * Sometimes USBIP on Windows can't attach to a device. Try moving the device to a different hub and binding again. You can move the device back after you bind as binding sticks through attach/detach cycles.
 * I had some trouble on one of my machines getting composite devices to show up in usbip list on the Windows side. To get around this:
