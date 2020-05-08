@@ -55,8 +55,8 @@ Find out the name of your Linux kernel:
 
 Clone the WSL 2 kernel. Typically kernel source is put in /usr/src/[kernel name]:
 ```
-~$ sudo git clone https://github.com/microsoft/WSL2-Linux-Kernel.git /usr/src/4.19.43-microsoft-standard
-~$ cd /usr/src/4.19.43-microsoft-standard
+~$ sudo git clone https://github.com/microsoft/WSL2-Linux-Kernel.git /usr/src/$(uname -r)
+~$ cd /usr/src/$(uname -r)
 ```
 
 Checkout your version of the kernel:
