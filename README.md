@@ -131,6 +131,27 @@ Build USBIP tools:
 /usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo make install -j 12
 ```
 
+For some kernel versions the following errors need to be patched:
+1. `stringop-truncation`
+
+    Message:
+    
+        In function ‘strncpy’,
+          inlined from ‘read_usb_vudc_device’ at usbip_device_driver.c:108:2:
+        /usr/include/x86_64-linux-gnu/bits/string_fortified.h:106:10: error: ‘__builtin_strncpy’ specified bound 256 equals destination size [-Werror=stringop-truncation]
+        106 |   return __builtin___strncpy_chk (__dest, __src, __len, __bos (__dest));
+            |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [Patch](https://patchwork.kernel.org/patch/10538575/)
+    
+2. `address-of-packed-member`
+
+    Message:
+    
+        usbip_network.c:91:32: error: taking address of packed member of ‘struct usbip_usb_device’ may result in an unaligned pointer value [-Werror=address-of-packed-member]
+          91 |  usbip_net_pack_uint32_t(pack, &udev->busnum);
+             |                                ^~~~~~~~~~~~~
+    [Patch](https://sources.debian.org/src/linux/5.4.19-1/debian/patches/bugfix/all/usbip-network-fix-unaligned-member-access.patch/)
+
 Copy USBIP tools libraries to location that USBIP tools can get to them:
 ```
 /usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo cp libsrc/.libs/libusbip.so.0 /lib/libusbip.so.0
