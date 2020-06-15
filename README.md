@@ -131,7 +131,7 @@ Build USBIP tools:
 /usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo make install -j 12
 ```
 
-For some kernel versions the following errors need to be patched:
+New [warnings](https://gcc.gnu.org/gcc-9/changes.html#c-family) were introduced in gcc 9, which can cause the USB/IP build to faild. Their causes can be patched using:
 1. `stringop-truncation`
 
     Message:
