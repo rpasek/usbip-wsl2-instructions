@@ -45,7 +45,7 @@ Update sources:
 Install prerequisites to build Linux kernel:
 ```
 ~$ sudo apt install build-essential flex bison libssl-dev libelf-dev libncurses-dev autoconf libudev-dev libtool
-````
+```
 
 Find out the name of your Linux kernel:
 ```
@@ -131,7 +131,7 @@ Build USBIP tools:
 /usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo make install -j 12
 ```
 
-New [warnings](https://gcc.gnu.org/gcc-9/changes.html#c-family) were introduced in gcc 9, which can cause the USB/IP build to faild. Their causes can be patched using:
+New [warnings](https://gcc.gnu.org/gcc-9/changes.html#c-family) were introduced in gcc 9, which can cause the USB/IP build to fail. Their causes can be patched using:
 1. `stringop-truncation`
 
     Message:
@@ -152,10 +152,28 @@ New [warnings](https://gcc.gnu.org/gcc-9/changes.html#c-family) were introduced 
              |                                ^~~~~~~~~~~~~
     [Patch](https://sources.debian.org/src/linux/5.4.19-1/debian/patches/bugfix/all/usbip-network-fix-unaligned-member-access.patch/)
 
+__Recommended__: To patch, you can use the script in the [`./scripts`](./scripts) directory: [`apply_patches.sh`](./scripts/apply_patches.sh).
+
+By default, the script applies the patches found in [`./patches`](./patches) to `/usr/src/*microsoft-standard`.
+If your kernel source code is checked out to `/usr/src/*microsoft-standard` and your are running the script from the base directory of this repository, then it should work out of the box. 
+
+If your sources are elsewhere or you have a different patch set that you want to apply, then you can specify their location(s) with the `-d` and `-p` options, respectively.
+
+You can use the `--dry-run` option to see which patches will be applied without making changes to the kernel source code.
+
+__Example Usage__: 
+```
+scripts/apply_patches.sh
+scripts/apply_patches.sh --dry-run
+scripts/apply_patches.sh -d /usr/src/4.19.43-microsoft-standard
+scripts/apply_patches.sh -d /usr/src/4.19.43-microsoft-standard -p ./patches
+scripts/apply_patches.sh -d /usr/src/my-custon-kernel -p /usr/src/my-custom-patches
+```
+
 Copy USBIP tools libraries to location that USBIP tools can get to them:
 ```
 /usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo cp libsrc/.libs/libusbip.so.0 /lib/libusbip.so.0
-````
+```
 
 Make a script in your home directory to modprobe in all the drivers. Be sure to modprobe in usbcore and usb-common first. I called mine startusb.sh. Mine looks like:
 ```
@@ -196,7 +214,7 @@ Open WSL again by going to start menu and opening Ubuntu and run your script:
 Check in dmesg that all your USB drivers got loaded:
 ```
 ~$ sudo dmesg
-````
+```
 
 If so, cool, you've added USB support to WSL. 
 
