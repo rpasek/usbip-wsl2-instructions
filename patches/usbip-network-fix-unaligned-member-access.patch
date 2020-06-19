@@ -1,0 +1,79 @@
+From: Ben Hutchings <ben@decadent.org.uk>
+Date: Sun, 18 Aug 2019 16:15:26 +0100
+Subject: usbip: network: Fix unaligned member access
+Bug-Debian: https://bugs.debian.org/925766
+
+gcc 9 warns:
+
+usbip_network.c: In function ‘usbip_net_pack_usb_device’:
+usbip_network.c:79:32: error: taking address of packed member of ‘struct usbip_usb_device’ may result in an unaligned pointer value [-Werror=address-of-packed-member]
+   79 |  usbip_net_pack_uint32_t(pack, &udev->busnum);
+      |                                ^~~~~~~~~~~~~
+
+and similarly for other calls to usbip_net_pack_uint{16,32}_t().
+
+These fields are unaligned because they are declared as part of a
+packed structure.  Functions operating on the structure will use the
+appropriate accessors for unaligned data if necessary, but there
+doesn't seem to be a way to declare functions as taking a pointer
+to a unaligned scalar.
+
+Instead, change these functions to take a pointer of type void * and
+to memcpy() the unaligned value in and out of a local variable.
+
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+--- a/tools/usb/usbip/src/usbip_network.c
++++ b/tools/usb/usbip/src/usbip_network.c
+@@ -50,28 +50,30 @@ void usbip_setup_port_number(char *arg)
+ 	info("using port %d (\"%s\")", usbip_port, usbip_port_string);
+ }
+ 
+-void usbip_net_pack_uint32_t(int pack, uint32_t *num)
++void usbip_net_pack_uint32_t(int pack, void *num)
+ {
+ 	uint32_t i;
+ 
++	memcpy(&i, num, sizeof(i));
+ 	if (pack)
+-		i = htonl(*num);
++		i = htonl(i);
+ 	else
+-		i = ntohl(*num);
++		i = ntohl(i);
+ 
+-	*num = i;
++	memcpy(num, &i, sizeof(i));
+ }
+ 
+-void usbip_net_pack_uint16_t(int pack, uint16_t *num)
++void usbip_net_pack_uint16_t(int pack, void *num)
+ {
+ 	uint16_t i;
+ 
++	memcpy(&i, num, sizeof(i));
+ 	if (pack)
+-		i = htons(*num);
++		i = htons(i);
+ 	else
+-		i = ntohs(*num);
++		i = ntohs(i);
+ 
+-	*num = i;
++	memcpy(num, &i, sizeof(i));
+ }
+ 
+ void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev)
+--- a/tools/usb/usbip/src/usbip_network.h
++++ b/tools/usb/usbip/src/usbip_network.h
+@@ -166,8 +166,8 @@ struct op_devlist_reply_extra {
+ 	usbip_net_pack_uint32_t(pack, &(reply)->ndev);\
+ } while (0)
+ 
+-void usbip_net_pack_uint32_t(int pack, uint32_t *num);
+-void usbip_net_pack_uint16_t(int pack, uint16_t *num);
++void usbip_net_pack_uint32_t(int pack, void *num);
++void usbip_net_pack_uint16_t(int pack, void *num);
+ void usbip_net_pack_usb_device(int pack, struct usbip_usb_device *udev);
+ void usbip_net_pack_usb_interface(int pack, struct usbip_usb_interface *uinf);
+ 

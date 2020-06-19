@@ -1,0 +1,33 @@
+--- a/tools/usb/usbip/libsrc/usbip_common.c
++++ b/tools/usb/usbip/libsrc/usbip_common.c
+@@ -226,8 +226,8 @@  int read_usb_device(struct udev_device *
+ path = udev_device_get_syspath(sdev);
+ 	name = udev_device_get_sysname(sdev);
+ 
+- strncpy(udev->path,  path,  SYSFS_PATH_MAX);
+- strncpy(udev->busid, name, SYSFS_BUS_ID_SIZE);
++vi-snprintf(udev->path, SYSFS_PATH_MAX, "%s", path);
++vi-snprintf(udev->busid, SYSFS_BUS_ID_SIZE, "%s", name);
+ 
+ 	sscanf(name, "%u-%u", &busnum, &devnum);
+ 	udev->busnum = busnum;
+--- a/tools/usb/usbip/libsrc/usbip_device_driver.c
++++ b/tools/usb/usbip/libsrc/usbip_device_driver.c
+@@ -103,7 +103,7 @@  int read_usb_vudc_device(struct udev_dev
+ copy_descr_attr16(dev, &descr, idProduct);
+ 	copy_descr_attr16(dev, &descr, bcdDevice);
+ 
+- strncpy(dev->path, path, SYSFS_PATH_MAX);
++vi-snprintf(dev->path, SYSFS_PATH_MAX, "%s", path);
+ 
+ 	dev->speed = USB_SPEED_UNKNOWN;
+ 	speed = udev_device_get_sysattr_value(sdev, "current_speed");
+@@ -122,7 +122,7 @@  int read_usb_vudc_device(struct udev_dev
+ dev->busnum = 0;
+ 
+ 	name = udev_device_get_sysname(plat);
+- strncpy(dev->busid, name, SYSFS_BUS_ID_SIZE);
++vi-snprintf(dev->busid, SYSFS_BUS_ID_SIZE, "%s", name);
+ 	return 0;
+ err:
+ 	fclose(fd);
