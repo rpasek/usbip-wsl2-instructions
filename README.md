@@ -105,7 +105,7 @@ Device Drivers->USB support->USB Physical Layer drivers->NOP USB Transceiver Dri
 Device Drivers->Network device support->USB Network Adapters[M]
 Device Drivers->Network device support->USB Network Adapters->[Deselect everything you don't care about]
 Device Drivers->Network device support->USB Network Adapters->Multi-purpose USB Networking Framework[M]
-Device Drivers->Network device support->USB Network Adapters->CDC Ethernet support (smart devices such as cable modems)[M]
+Device Drivers->Network device support->USB Network Adapters->Multi-purpose USB Networking Framework->CDC Ethernet support (smart devices such as cable modems)[M]
 Device Drivers->Network device support->USB Network Adapters->Multi-purpose USB Networking Framework->Host for RNDIS and ActiveSync devices[M]
 ```
 
