@@ -111,7 +111,7 @@ Device Drivers->Network device support->USB Network Adapters->Multi-purpose USB 
 
 Build the kernel and modules with as many cores as you have available (-j [number of cores]). This may take a few minutes depending how fast your machine is:
 ```
-~/WSL2-Linux-Kernel$ make -j 12 && make modules_install -j 12 && sudo make install -j 12
+~/WSL2-Linux-Kernel$ make -j 12 && make modules_install -j 12
 ```
 
 After the build completes you'll get a list of what kernel modules have been installed. Mine looks like:
@@ -172,6 +172,18 @@ If you see some crap about /bin/bash^M: bad interpreter: No such file or directo
 Mark it as executable:
 ```
 ~$ sudo chmod +x startusb.sh
+```
+
+Replace the Linux kernel with the one just compiled. Before running the command below, replace `<your-user>` with your username.
+```
+cp ~/WSL2-Linux-Kernel/vmlinux /mnt/c/Users/<your-user>/
+```
+
+And create a file .wslconfig in `C:\Users\<your-user>\` with the following contents, always replacing `<your-user>` with your actual username:
+
+```
+[wsl2]
+kernel=C:\\Users\\<your-user>\\vmlinux
 ```
 
 Restart WSL. In a CMD window in Windows type:
