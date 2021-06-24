@@ -53,27 +53,28 @@ Find out the name of your Linux kernel:
 4.19.43-microsoft-standard
 ```
 
-Clone the WSL 2 kernel. Typically kernel source is put in /usr/src/[kernel name]:
+Clone the WSL 2 kernel. For this compilation we will put the source in the default folder WSL2-Linux-Kernel in the user home directory:
 ```
-~$ sudo git clone https://github.com/microsoft/WSL2-Linux-Kernel.git /usr/src/4.19.43-microsoft-standard
-~$ cd /usr/src/4.19.43-microsoft-standard
+~$ cd
+~$ git clone https://github.com/microsoft/WSL2-Linux-Kernel.git
+~$ cd WSL2-Linux-Kernel/
 ```
 
 Checkout your version of the kernel:
 ```
-/usr/src/4.19.43-microsoft-standard$ sudo git checkout v4.19.43
+~/WSL2-Linux-Kernel$ git checkout v4.19.43
 ```
 
 Copy in your current kernel configuration:
 ```
-/usr/src/4.19.43-microsoft-standard$ sudo cp /proc/config.gz config.gz
-/usr/src/4.19.43-microsoft-standard$ sudo gunzip config.gz
-/usr/src/4.19.43-microsoft-standard$ sudo mv config .config
+~/WSL2-Linux-Kernel$ cp /proc/config.gz config.gz
+~/WSL2-Linux-Kernel$ gunzip config.gz
+~/WSL2-Linux-Kernel$ mv config .config
 ```
 
 Run menuconfig to select what kernel modules you'd like to add:
 ```
-/usr/src/4.19.43-microsoft-standard$ sudo make menuconfig
+~/WSL2-Linux-Kernel$ sudo make menuconfig
 ```
 
 Navigate in menuconfig to select the USB kernel modules you'd like. These suited my needs but add more or less as you see fit:
@@ -99,7 +100,7 @@ Device Drivers->Network device support->USB Network Adapters->Multi-purpose USB 
 
 Build the kernel and modules with as many cores as you have available (-j [number of cores]). This may take a few minutes depending how fast your machine is:
 ```
-/usr/src/4.19.43-microsoft-standard$ sudo make -j 12 && sudo make modules_install -j 12 && sudo make install -j 12
+~/WSL2-Linux-Kernel$ make -j 12 && make modules_install -j 12 && sudo make install -j 12
 ```
 
 After the build completes you'll get a list of what kernel modules have been installed. Mine looks like:
@@ -125,15 +126,15 @@ After the build completes you'll get a list of what kernel modules have been ins
 
 Build USBIP tools:
 ```
-/usr/src/4.19.43-microsoft-standard$ cd tools/usb/usbip
-/usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo ./autogen.sh
-/usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo ./configure
-/usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo make install -j 12
+~/WSL2-Linux-Kernel$ cd tools/usb/usbip
+~/WSL2-Linux-Kernel/tools/usb/usbip$ ./autogen.sh
+~/WSL2-Linux-Kernel/tools/usb/usbip$ ./configure
+~/WSL2-Linux-Kernel/tools/usb/usbip$ sudo make install -j 12
 ```
 
 Copy USBIP tools libraries to location that USBIP tools can get to them:
 ```
-/usr/src/4.19.43-microsoft-standard/tools/usb/usbip$ sudo cp libsrc/.libs/libusbip.so.0 /lib/libusbip.so.0
+~/WSL2-Linux-Kernel/tools/usb/usbip$ sudo cp libsrc/.libs/libusbip.so.0 /lib/libusbip.so.0
 ````
 
 Make a script in your home directory to modprobe in all the drivers. Be sure to modprobe in usbcore and usb-common first. I called mine startusb.sh. Mine looks like:
