@@ -47,12 +47,6 @@ Install prerequisites to build Linux kernel:
 ~$ sudo apt install build-essential flex bison libssl-dev libelf-dev libncurses-dev autoconf libudev-dev libtool
 ````
 
-Find out the name of your Linux kernel:
-```
-~$ uname -r
-4.19.43-microsoft-standard
-```
-
 Clone the WSL 2 kernel. For this compilation we will put the source in the default folder WSL2-Linux-Kernel in the user home directory:
 ```
 ~$ cd
@@ -60,9 +54,26 @@ Clone the WSL 2 kernel. For this compilation we will put the source in the defau
 ~$ cd WSL2-Linux-Kernel/
 ```
 
+Find out the name of your Linux kernel:
+```
+~/WSL2-Linux-Kernel$ uname -r
+5.10.16.3-microsoft-standard-WSL2
+```
+
+Sometimes the name of the tag doesn't exactly match the name of your linux kernel. So, use the command `git tag` together with `grep` to find the tag that best matches your kernel:
+```
+~/WSL2-Linux-Kernel$ git tag | grep 5.10
+linux-msft-wsl-5.10.16.3
+v2.6.25.10
+v2.6.35.10
+v3.15.10
+v4.15.10
+```
+Clearly, linux-msft-wsl-5.10.16.3 is the desired tag.
+
 Checkout your version of the kernel:
 ```
-~/WSL2-Linux-Kernel$ git checkout v4.19.43
+~/WSL2-Linux-Kernel$ git checkout linux-msft-wsl-5.10.16.3
 ```
 
 Copy in your current kernel configuration:
@@ -121,7 +132,7 @@ After the build completes you'll get a list of what kernel modules have been ins
   INSTALL drivers/usb/storage/usb-storage.ko
   INSTALL drivers/usb/usbip/usbip-core.ko
   INSTALL drivers/usb/usbip/vhci-hcd.ko
-  DEPMOD  4.19.43-microsoft-standard
+  DEPMOD  5.10.16.3-microsoft-standard-WSL2
 ```
 
 Build USBIP tools:
