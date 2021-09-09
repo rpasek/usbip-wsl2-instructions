@@ -241,11 +241,12 @@ Your USB device should be usable now in Linux. Check dmesg to make sure everythi
 * You can't bind hubs. Sorry, it would be really cool but it doesn't work.
 * If you'd like to unbind so you can access the device in Windows again: 
   1. Go into Device Manager in Windows,
-  2. Find the USB/IP STUB device under System devices,
-  3. Right click and select Update driver
-  4. Click Browse my computer for driver software
-  5. Click Let me pick from a list of available drivers on my computer
-  6. Select the original driver that Windows uses to access the device
+  2. In the View menu, select "Show hidden devices"
+  3. Find the USB/IP STUB device under System devices,
+  4. Right click and select Update driver
+  5. Click Browse my computer for driver software
+  6. Click Let me pick from a list of available drivers on my computer
+  7. Select the original driver that Windows uses to access the device
 * Sometimes USBIP on Windows can't attach to a device. Try moving the device to a different hub and binding again. You can move the device back after you bind as binding sticks through attach/detach cycles.
 * I had some trouble on one of my machines getting composite devices to show up in usbip list on the Windows side. To get around this:
   1. Download Zadig (https://zadig.akeo.ie) and run it
